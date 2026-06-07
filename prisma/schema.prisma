@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String             @id @default(cuid())
+  email     String             @unique
+  name      String
+  password  String
+  createdAt DateTime           @default(now())
+  sessions  InterviewSession[]
+}
+
+model InterviewSession {
+  id             String     @id @default(cuid())
+  userId         String
+  jobTitle       String
+  company        String?
+  jobDescription String?
+  interviewType  String     @default("BEHAVIORAL")
+  status         String     @default("IN_PROGRESS")
+  overallScore   Float?
+  createdAt      DateTime   @default(now())
+  completedAt    DateTime?
+  questions      Question[]
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id           String           @id @default(cuid())
+  sessionId    String
+  questionText String
+  questionType String
+  userAnswer   String?
+  aiFeedback   String?
+  score        Float?
+  order        Int
+  createdAt    DateTime         @default(now())
+  session      InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
